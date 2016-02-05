@@ -5,6 +5,32 @@
  * @return {number[][]}
  */
 var combinationSum3 = function(k, n) {
+    var curr = [];
+    var result = [];
+    
+    function comb(k, n, start, curr, result) {
+        if (k === 0) {
+            if (n === 0) result.push(curr.slice());
+            return;
+        }
+        
+        for (var i = start; i <= 9; i++) {
+            curr.push(i);
+            comb(k-1,n-i,i+1,curr,result);
+            curr.pop();
+        }
+    }
+    comb(k,n,1,curr,result);
+    return result;
+};
+
+/**
+ * https://leetcode.com/problems/combination-sum-iii/
+ * @param {number} k
+ * @param {number} n
+ * @return {number[][]}
+ */
+var combinationSum3 = function(k, n) {
     var result = [];
     var curr = [];
     var pos = 1;

@@ -4,6 +4,37 @@
  * @return {string[]}
  */
 var restoreIpAddresses = function(s) {
+    
+    function validAddr(addr) {
+        if (addr[0] === '0' && addr.length > 1) return false;
+        return Number(addr) < 256;
+    }
+    
+    var result = [];
+    
+    function helper(s, left, curr, result) {
+        if (left === 0) {
+            if (s === '') result.push(curr.substring(1));
+            return;
+        }
+        
+        for (var i = 1; i <= s.length; i++) {
+            var addr = s.substring(0, i);
+            if (validAddr(addr)) {
+                helper(s.substring(i), left-1, curr + '.' + addr, result);
+            }
+        }
+    }
+    helper(s, 4, '', result);
+    return result;
+};
+
+/**
+ * https://leetcode.com/problems/restore-ip-addresses/
+ * @param {string} s
+ * @return {string[]}
+ */
+var restoreIpAddresses = function(s) {
     if (s.length > 12) return [];
     
     var result = [];

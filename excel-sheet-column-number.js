@@ -4,13 +4,10 @@
  * @return {number}
  */
 var titleToNumber = function(s) {
-    if (s === null || s.length === 0) return 0;
-    
     var result = 0;
     for (var i = 0; i < s.length; i++) {
         var num = s.charCodeAt(i) - 64;
-        result *= 26;
-        result += num;
+        result = result*26 + num;
     }
     return result;
 };
