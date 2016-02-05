@@ -30,31 +30,38 @@ var block = {
 var score = 0;
 var snake = [[0,0]];
 var snakeDirections = [[0,1], [0,-1], [-1, 0], [1,0],[0,0]]; // left, right, up, down
-var currSnakeDirection = snakeDirections[4];
+var currSnakeDirection = 4;
 var lastKeyCode = null;
 
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
+function refreshSnakeDirection() {
+    if (lastKeyCode === 37) currSnakeDirection = 1;
+    else if (lastKeyCode === 39) currSnakeDirection = 0;
+    else if (lastKeyCode === 38) currSnakeDirection = 2;
+    else if (lastKeyCode === 40) currSnakeDirection = 3;
+}
+
+/**
+
+keyDownHandler(e);
+we only recognize direction keys, since the snake cannot travel backwards, we do not allow opposite
+direction key be pressed consecutively, we also make sure the snake's current direction isn't the
+opposite of what was clicked, snake direction is updated at every frame, so we can avoid race conditions
+where lastKeyCode does not match with snake direction and snake tries to travel in opposite direction
+
+**/
 function keyDownHandler(e) {
     if (e.keyCode === 32) { // space
-        currSnakeDirection = snakeDirections[4];
+        currSnakeDirection = 4
         gamePaused = true;
     } else {
         gamePaused = false;
-        if (e.keyCode === 37 && lastKeyCode !== 39) { // left
-            lastKeyCode = 37;
-            currSnakeDirection = snakeDirections[1];
-        } else if(e.keyCode === 39 && lastKeyCode !== 37) { // right
-            lastKeyCode = 39;
-            currSnakeDirection = snakeDirections[0];
-        } else if(e.keyCode === 38 && lastKeyCode !== 40) { // up
-            lastKeyCode = 38;
-            currSnakeDirection = snakeDirections[2];
-        } else if (e.keyCode === 40 && lastKeyCode !== 38) { // down
-            lastKeyCode = 40;
-            currSnakeDirection = snakeDirections[3];
-        }
+        if (e.keyCode === 37 && lastKeyCode !== 39 && currSnakeDirection !== 0) lastKeyCode = 37; // left
+        else if (e.keyCode === 39 && lastKeyCode !== 37 && currSnakeDirection !== 1) lastKeyCode = 39; // right
+        else if (e.keyCode === 38 && lastKeyCode !== 40 && currSnakeDirection !== 3) lastKeyCode = 38;// up
+        else if (e.keyCode === 40 && lastKeyCode !== 38 && currSnakeDirection !== 2) lastKeyCode = 40; // down
     }
 }
 
@@ -79,7 +86,11 @@ function moveSnake(x, y) {
     }
 
     function validPosition(x, y) {
-        if (blocks[x][y].isSnake) return false;
+        var head = snake[snake.length-1];
+        if (blocks[x][y].isSnake) {
+            if (x === head[0] && y === head[1]) return true;
+            return false;
+        }
         return true;
     }
 
@@ -182,10 +193,11 @@ function draw() {
         requestAnimationId = requestAnimationFrame(draw);
         
         // animating/drawing code goes here
+        refreshSnakeDirection();
         drawBlocks();
-        if (!gamePaused) moveSnake(currSnakeDirection[0], currSnakeDirection[1]);
+        if (!gamePaused) moveSnake(snakeDirections[currSnakeDirection][0], snakeDirections[currSnakeDirection][1]);
         drawScore();
-    }, 1000 / 30);
+    }, 1000 / 20);
     
 }
 
