@@ -10,21 +10,22 @@ canvas {
 
 </head> 
 <body>
-    <canvas id="myCanvas" width="760" height="580"></canvas>
+    <canvas id="myCanvas" width="780" height="520"></canvas>
 </body>
 <script>
 var requestAnimationId = null;
 var gamePaused = true;
 var vertPadding = 50;
-var vertOffSet = 3;
-var horiOffSet = 3;
-var boardWidth = 58;
-var boardHeight = 40;
+var vertOffSet = 6;
+var horiOffSet = 6;
+var boardWidth = 25;
+var boardHeight = 15;
 var block = {
-    width: 10,
-    height: 10,
+    width: 25,
+    height: 25,
     color: "#DDDDDD",
-    snakeColor: "black",
+    snakeColor: "green",
+    snakeHeadColor: "black",
     mouseColor: "red"
 }
 var score = 0;
@@ -67,7 +68,7 @@ function keyDownHandler(e) {
 
 function gameover() {
     console.log('game over')
-    ctx.clearRect(200,230,370,100);
+    drawBlock(200,230,370,100,"rgba(255, 255, 255, 0.8)")
     ctx.font = "50px Arial";
     ctx.fillStyle = "#FF0000";
     ctx.fillText("GAME OVER", 230, 300);
@@ -108,6 +109,8 @@ function moveSnake(x, y) {
     snake.push(newHead);
     var ateMouse = blocks[newHead[0]][newHead[1]].isMouse;
     blocks[newHead[0]][newHead[1]].isSnake = true;
+    blocks[newHead[0]][newHead[1]].isSnakeHead = true;
+    blocks[headx][heady].isSnakeHead = false;
     blocks[newHead[0]][newHead[1]].isMouse = false;
 
     if (!ateMouse) {
@@ -146,6 +149,7 @@ var blocks = (function() {
             blocks[r][c] = {
                 isSnake: false,
                 isMouse: false,
+                isSnakeHead: false
             }
         }
     }
@@ -153,6 +157,7 @@ var blocks = (function() {
 }());
 
 function placeSnakeAndMouses() {
+    blocks[snake[0][0]][snake[0][1]].isSnakeHead = true;
     blocks[snake[0][0]][snake[0][1]].isSnake = true;
     generateNewMouse();
 }
@@ -164,9 +169,10 @@ function drawBlocks() {
             var y = r*(block.height + vertOffSet) + vertOffSet + vertPadding;
 
             var color = block.color;
-            if (blocks[r][c].isSnake)
-                color = block.snakeColor;
-            else if (blocks[r][c].isMouse)
+            if (blocks[r][c].isSnake) {
+                if (blocks[r][c].isSnakeHead) color = block.snakeHeadColor;
+                else color = block.snakeColor;
+            } else if (blocks[r][c].isMouse)
                 color = block.mouseColor
 
             drawBlock(x, y, block.width, block.height, color);
@@ -205,7 +211,6 @@ function init() {
     document.addEventListener("keydown", keyDownHandler, false);
     placeSnakeAndMouses();
     drawInstructions();
-    
     draw();
 }
 
